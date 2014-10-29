@@ -1,0 +1,127 @@
+#IS607 Assignment 9
+# Neil Acampa
+#
+# rmongodb 
+# Read the data into R. Research the rmongodb package and use it to pull 
+# the data into R as three separate data frames 
+# (one each for states, districts, and territiories). 
+# Make sure you do any necessary cleanup on the data so that it is ready to
+# hand off to a colleague to work with!
+#
+
+library(plyr)
+require(plyr)
+library(rmongodb)
+
+mongo = mongo.create(host = "localhost")
+mongo.is.connected(mongo)
+
+DBCollection = "unitedstates.states"
+(mongo.count(mongo, ns = DBCollection))
+
+
+
+# Iterate through a cursor and when heading changes, change DF
+dfstates         <- data.frame()
+dfinhabitedterr  <- data.frame()
+dfdistrict       <- data.frame()
+
+df1name         = names(temp1[2])
+
+Id              <- vector()
+State           <- vector()
+Stateabbr       <- vector()
+Capital         <- vector()
+LargestCity     <- vector()
+Population      <- vector()
+Area_Sqmiles    <- vector()
+Landarea_Sqmiles<- vector()
+HouseSeats      <- vector()
+StatehoodDate   <- vector()
+
+# Vectors for Data Frame 2
+Id2                <- vector()
+federal_district   <- vector()
+abbr               <- vector()
+establishment_date <- vector()
+population2     <- vector()
+area_sq_miles2     <- vector()
+land_area_sq_miles2<- vector()
+house_seats2       <- vector()
+
+# Vectors for Data Frame 3
+Id3                <- vector()
+territory          <- vector()
+abbr_terr          <- vector()
+capital		   <- vector()
+acquisition_year   <- vector()
+territorial_status <- vector()
+population3        <- vector() 
+area_sq_miles3     <- vector()    
+land_area_sq_miles3<- vector()    
+house_seats3       <- vector()      
+
+indx <- 0
+pass = 1
+
+#(temp = mongo.find.all(mongo, DBCollection))
+#(temp1 = mongo.bson.to.list(temp))
+#(heading = names(temp1))
+
+
+cursor = mongo.find(mongo, DBCollection)
+
+while (mongo.cursor.next(cursor)) {
+  tmp = mongo.bson.to.list(mongo.cursor.value(cursor))
+  indx = indx + 1
+  if ((indx == 51) && (pass == 1)) {
+    cat("indx = ", indx, "\n")
+    dfstates <- data.frame(State, Stateabbr, Capital, LargestCity, Population, Area_Sqmiles, Landarea_Sqmiles)
+    pass = 2
+    indx = 1
+    cat("pass = ", pass,"\n")
+    cat("indx = ", indx,"\n")
+    cat("tmp = ", tmp[[1]],"\n")
+  }
+  if ((indx > 1) && (pass == 2)) {
+    dfdistrict <- data.frame(federal_district, abbr, establishment_date, population2, area_sq_miles2, land_area_sq_miles2, house_seats2)
+    pass = 3
+    indx = 1
+  }
+  if (pass == 1) {
+    Id[indx]                = tmp[[1]]
+    State[indx]             = tmp[[2]]
+    Stateabbr[indx]         = tmp[[3]]
+    Capital[indx]           = tmp[[4]]
+    LargestCity[indx]       = tmp[[5]]
+    Population[indx]        = tmp[[6]]
+    Area_Sqmiles[indx]      = tmp[[7]]
+    Landarea_Sqmiles[indx]  = tmp[[8]]
+    HouseSeats[indx]        = tmp[[9]]
+    StatehoodDate[indx]     = tmp[[10]]
+  } 
+  if (pass == 2) {
+    Id2[indx]               = tmp[[1]]
+    federal_district[indx]  = tmp[[2]]
+    abbr[indx]              = tmp[[3]]
+    establishment_date      = tmp[[4]]
+    population2	           = tmp[[5]]
+    area_sq_miles2          = tmp[[6]]
+    land_area_sq_miles2     = tmp[[7]]
+    house_seats2            = tmp[[8]]
+  }   
+  if (pass == 3) {
+    Id3[indx]              = tmp[[1]]
+    territory              = tmp[[2]]
+    abbr_terr              = tmp[[3]]
+    capital	          = tmp[[4]]
+    acquisition_year	  = tmp[[5]]
+    territorial_status	  = tmp[[6]]
+    population3            = tmp[[7]]
+    area_sq_miles3         = tmp[[8]]
+    land_area_sq_miles3    = tmp[[9]]
+    house_seats3           = tmp[[10]]
+  }
+}
+
+dfinhabitedterr <- data.frame(territory, abbr_terr, capital, acquisition_year, territorial_status, population3, area_sq_miles3, land_area_sq_miles3, house_seats3)
